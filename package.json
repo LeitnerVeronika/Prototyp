@@ -1,0 +1,16 @@
+{
+  "name": "prototyp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "alloyfinger": "^0.1.16",
+    "interactjs": "^1.10.17"
+  }
+}
