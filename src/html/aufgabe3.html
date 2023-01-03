@@ -1,0 +1,257 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <!-- ZkduG6hWG@ -->
+    <title>Herzlich Willkommen!</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="shortcut icon" href="/favicon.ico"/>
+    <meta name="robots" content="noindex"/>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/interactjs@1.10.17/dist/interact.min.js" type="text/javascript"></script>
+    <script src="../../plugin/jquery.selection.js"></script>
+</head>
+<body>
+
+<script type="module">
+    /** Constants **/
+    var scaleUpFont;
+    var bold;
+    var SIZE_CHANGE = 4;
+
+    /** Text Decor (BOLD, ITALIC, UNDERLINED) **/
+    interact('#text_decor')
+        .on('doubletap', function(event){
+            underlineSelected();
+        })
+        .draggable({
+            lockAxis: 'x',
+            // enable inertial throwing
+            inertia: true,
+            // keep the element within the area of it's parent
+            modifiers: [
+                interact.modifiers.restrictRect({
+                    restriction: 'parent',
+                    endOnly: true
+                })
+            ],
+            // enable autoScroll
+            autoScroll: true,
+
+            listeners: {
+                // call this function on every dragmove event
+                move: dragMoveListenerHorizontal,
+
+                // call this function on every dragend event
+                end(event) {
+                    console.log(bold);
+
+                    if (!(window.getSelection().anchorNode.parentNode.tagName.toLowerCase() == 'b') || !(window.getSelection().anchorNode.parentNode.tagName.toLowerCase() == 'i')) {
+                        if(bold){
+                            boldSelected();
+                        }else {
+                            italicSelected();
+                        }
+                        alert("Element surrouned!")
+                    }
+                    //$(this).toggleClass("selected");
+                }
+            }
+        })
+
+    /** Font Size (SCALE UP | DOWN BY SIZE_CHANGE) **/
+
+    interact('#font_size')
+        .draggable({
+            lockAxis: 'y',
+            // enable inertial throwing
+            inertia: true,
+            // keep the element within the area of it's parent
+            modifiers: [
+                interact.modifiers.restrictRect({
+                    restriction: 'parent',
+                    endOnly: true
+                })
+            ],
+            // enable autoScroll
+            autoScroll: true,
+
+            listeners: {
+                // call this function on every dragmove event
+                move: dragMoveListenerVertical,
+
+                // call this function on every dragend event
+                end(event) {
+                    console.log("Test");
+                    // Todo: Funktioniert so semi könnte besser sein
+                    /* var highlight = window.getSelection();
+                    console.log(highlight.toString());
+                    highlight.rangeCount;
+                    console.log(document.createRange().toString());
+                    var spn = '&lt;span class=" selected scale">' + highlight + '&lt;/span>';
+                    var text = $('#textarea').html();
+                    $('#textarea').html(text.replace(highlight, spn));
+                     */
+                    // TODO: Beim ersten selektieren wird das p Element korrekt ausgegeben nachher wird das div-textarea Element als parent wiedergeben erst beim zweiten Selektieren funktioniert es
+                    /*console.log(window.getSelection().anchorNode.parentNode.tagName.toLowerCase());
+                    console.log(window.getSelection().anchorNode.parentNode.tagName.toLowerCase() == 'span');
+                     */
+
+                    if (!(window.getSelection().anchorNode.parentNode.tagName.toLowerCase() == 'span')) {
+                        surroundSelection();
+                        alert("Element surrouned!")
+                    }
+
+
+                    var size = parseInt($('.selected').css("fontSize"));
+                    //console.log(scaleUpFont);
+                    //console.log(size);
+
+                    if (scaleUpFont === true) {
+                        var newSize = size + SIZE_CHANGE;
+                        //console.log(newSize);
+                        $('.selected').css("fontSize", newSize + "px");
+                    } else {
+                        var newSize = size - SIZE_CHANGE;
+                        //console.log(newSize);
+                        $('.selected').css("fontSize", newSize + "px");
+                    }
+                    $(this).toggleClass("selected");
+                }
+            }
+        })
+
+    function surroundSelection() {
+        var span = document.createElement("span");
+        span.className = "selected";
+
+        if (window.getSelection) {
+            var sel = window.getSelection();
+            if (sel.rangeCount) {
+                var range = sel.getRangeAt(0).cloneRange();
+                range.surroundContents(span);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+    }
+
+    function boldSelected() {
+        var b = document.createElement("b");
+
+        if (window.getSelection) {
+            var sel = window.getSelection();
+            if (sel.rangeCount) {
+                var range = sel.getRangeAt(0).cloneRange();
+                range.surroundContents(b);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+    }
+    function italicSelected() {
+        var i = document.createElement("i");
+
+        if (window.getSelection) {
+            var sel = window.getSelection();
+            if (sel.rangeCount) {
+                var range = sel.getRangeAt(0).cloneRange();
+                range.surroundContents(i);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+    }
+    function underlineSelected() {
+        var u = document.createElement("u");
+
+        if (window.getSelection) {
+            var sel = window.getSelection();
+            if (sel.rangeCount) {
+                var range = sel.getRangeAt(0).cloneRange();
+                range.surroundContents(u);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+    }
+
+    function dragMoveListenerVertical(event) {
+
+        var target = event.target
+        // keep the dragged position in the data-x/data-y attributes
+        var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+        var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+
+        /*console.log("X:" + x + " Y:" + y);
+        console.log("Event dy: " + event.dy );
+        console.log("Event PageY: " + event.pageY);
+        console.log("y0" + event.y0)
+        */
+        // translate the element
+        //target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
+        if (event.pageY < event.y0) {
+            scaleUpFont = true;
+        } else {
+            scaleUpFont = false;
+        }
+
+        // update the posiion attributes
+        //target.setAttribute('data-x', x)
+        //target.setAttribute('data-y', y)
+    }
+
+    // this function is used later in the resizing and gesture demos
+    window.dragMoveListener = dragMoveListener
+
+    function dragMoveListenerHorizontal(event) {
+
+        var target = event.target
+        // keep the dragged position in the data-x/data-y attributes
+        var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
+        var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
+
+        /*console.log("X:" + x + " Y:" + y);
+        console.log("Event dy: " + event.dy );
+        console.log("Event PageY: " + event.pageY);
+        console.log("y0" + event.y0)
+        */
+        // translate the element
+        //target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
+        if (event.pageX < event.x0) {
+            bold = true;
+        } else {
+            bold = false;
+        }
+
+        // update the posiion attributes
+        //target.setAttribute('data-x', x)
+        //target.setAttribute('data-y', y)
+    }
+</script>
+<div id="page">
+    <div id="header" class="header">
+        <h1>Gestengesteuertes Textverarbeitungsprogramm</h1>
+    </div>
+    <div id="content">
+        <h2>Aufgabe 3: Klicken und ziehen Sie auf das dritte Icon um den Text in einer anderen Farbe zu färben.</h2>
+        <div class="icon_menu">
+            <div>
+                <img src="../../img/Font.png" id="font_size" class="icon_img draggable">
+                <img src="../../img/TextDecor.png" id="text_decor" class="icon_img draggable">
+                <img src="../../img/Colors.png" id="text_color" class="icon_img draggable">
+            </div>
+        </div>
+        <h1>Test</h1>
+        <div contenteditable="true" id="textarea" rows="10" id="test"><p>Färben Sie diesen Text in einer beliebigen Farbe um.</p>
+        </div>
+        <a href="https://gesture-icons.projekte.fh-hagenberg.at/src/html/aufgabe3.html">Weiter</a>
+    </div>
+    <div id="footer">
+        <p>Bachelorarbeit "Gestengesteuerte Icons in der Webgestalltung" von Veronika Leitner</p>
+        <p>Powered by <a href="http://www.ispconfig.org">ISPConfig</a></p>
+    </div>
+</div>
+</body>
+</html>

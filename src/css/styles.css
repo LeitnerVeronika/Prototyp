@@ -8,8 +8,7 @@ h1 {}
 h2 { font-size: 1.2em; }
 #page{
     background-color: #FFFFFF;
-    width: 60%;
-    margin: 24px auto;
+    margin: 24px;
     padding: 12px;
 }
 #header{
@@ -32,5 +31,18 @@ h2 { font-size: 1.2em; }
     color: #999999;
 }
 .icon_img{
-    height: 60px;
+    height: 80px;
+    width: 80px;
+    margin: 0px 10px;
+}
+
+.highlight{
+    color:#888;
+}
+
+#textarea, .icon_menu{
+    padding: 0px 10px;
+    border: solid 2px rgba(223, 223, 223, 0.5);
+    border-radius: 4px;
+
 }

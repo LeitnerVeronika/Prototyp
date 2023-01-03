@@ -9,17 +9,39 @@
     <meta name="robots" content="noindex" />
     <link rel="stylesheet" href="src/css/styles.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js" type="text/javascript"></script>
-
+    <script src="https://unpkg.com/interactjs@1.10.17/dist/interact.min.js" type="text/javascript"></script>
+    <script src="plugin/jquery.selection.js"></script>
 </head>
 <body>
 
 <script type="module">
-    //import interact from 'interactjs'
-    require('interactjs')
-    import interact from '/node_modules/interactjs'
+
+    function selectText(divid)
+    {
+        if (document.selection)
+        {
+            var div = document.body.createTextRange();
+
+            div.moveToElementText(document.getElementsByClassName(divid));
+            div.select();
+        }
+        else
+        {
+            var div = document.createRange();
+
+            div.setStartBefore(document.getElementsByClassName(divid));
+            div.setEndAfter(document.getElementsByClassName(divid)) ;
+
+            window.getSelection().addRange(div);
+        }
+    }
+
     $(document).ready(function(){
-        interact('.draggable')
+        var scaleUpFont;
+        var SIZE_CHANGE = 4;
+        interact('#font_size')
             .draggable({
+                lockAxis: 'y',
                 // enable inertial throwing
                 inertia: true,
                 // keep the element within the area of it's parent
@@ -38,47 +60,104 @@
 
                     // call this function on every dragend event
                     end (event) {
-                        var textEl = event.target.querySelector('p')
+                        console.log("Test");
+                        // Todo: Funktioniert so semi könnte besser sein
+                        /* var highlight = window.getSelection();
+                        console.log(highlight.toString());
+                        highlight.rangeCount;
+                        console.log(document.createRange().toString());
+                        var spn = '&lt;span class=" selected scale">' + highlight + '&lt;/span>';
+                        var text = $('#textarea').html();
+                        $('#textarea').html(text.replace(highlight, spn));
+                         */
+                        // TODO: Beim ersten selektieren wird das p Element korrekt ausgegeben nachher wird das div-textarea Element als parent wiedergeben erst beim zweiten Selektieren funktioniert es
+                        //console.log(window.getSelection().parentElement);
+                        /*console.log(window.getSelection().anchorNode.parentNode.tagName.toLowerCase());
+                        console.log(window.getSelection().anchorNode.parentNode.tagName.toLowerCase() == 'span');
+                         */
 
-                        textEl && (textEl.textContent =
-                            'moved a distance of ' +
-                            (Math.sqrt(Math.pow(event.pageX - event.x0, 2) +
-                                Math.pow(event.pageY - event.y0, 2) | 0))
-                                .toFixed(2) + 'px')
+                        if(!(window.getSelection().anchorNode.parentNode.tagName.toLowerCase() == 'span')) {
+                            surroundSelection();
+                            alert("Element surrouned!")
+                            size = 16;
+                            if(scaleUpFont === true){
+                                var newSize = size + SIZE_CHANGE;
+                                console.log("upsized");
+                                console.log($('span'))
+                                $('p').closest('span').css("fontSize", newSize + "px");
+                            }else{
+                                var newSize = size - SIZE_CHANGE;
+                                console.log("downsized");
+                                console.log($('.selected').closest('span'))
+                                $('.selected').closest('span').css("fontSize", newSize + "px");
+                            }
+                        }
+
+                        console.log(window.getSelection().anchorNode.parentElement);
+
+                        var size = parseInt($('.selected').css("fontSize"));
+                        //console.log(scaleUpFont);
+                        //console.log(size);
+
+                        if(scaleUpFont === true){
+                            var newSize = size + SIZE_CHANGE;
+                            //console.log(newSize);
+                            $(window.getSelection().anchorNode.parentElement).css("fontSize", newSize + "px");
+                        }else{
+                            var newSize = size - SIZE_CHANGE;
+                            //console.log(newSize);
+                            $(window.getSelection().anchorNode.parentElement).css("fontSize", newSize + "px");
+                        }
+                        $(this).toggleClass("selected");
                     }
                 }
             })
 
+        function surroundSelection() {
+            var span = document.createElement("span");
+            span.className = "selected";
+
+            if (window.getSelection) {
+                var sel = window.getSelection();
+                if (sel.rangeCount) {
+                    var range = sel.getRangeAt(0).cloneRange();
+                    range.surroundContents(span);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+            }
+        }
+
         function dragMoveListener (event) {
+
             var target = event.target
             // keep the dragged position in the data-x/data-y attributes
             var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx
             var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy
 
+            /*console.log("X:" + x + " Y:" + y);
+            console.log("Event dy: " + event.dy );
+            console.log("Event PageY: " + event.pageY);
+            console.log("y0" + event.y0)
+            */
             // translate the element
-            target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
+            //target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
+            if(event.pageY < event.y0){
+                scaleUpFont = true;
+            }else{
+                scaleUpFont = false;
+            }
 
             // update the posiion attributes
-            target.setAttribute('data-x', x)
-            target.setAttribute('data-y', y)
+            //target.setAttribute('data-x', x)
+            //target.setAttribute('data-y', y)
         }
+
+
 
 // this function is used later in the resizing and gesture demos
         window.dragMoveListener = dragMoveListener
 
-        /*var angle = 0;
-        $("#font_size").gesturable({
-            listeners:{
-                move (event){
-                    var icon = document.getElementById("font_size");
-                    angle += event.da;
-                    icon.style.transform = "rotate(" + angle + "deg)";
-                }
-            }
-        })*/
-        $("button").click(function (){
-            $(this).hide();
-        })
     })
 </script>
     <div id="page">
@@ -87,16 +166,17 @@
         </div>
         <div id="content">
             <h2>Aufgabe 1: Nutzen Sie das erste Icon um die Schriftgröße der zweiten Zeile an die erste anzupassen.</h2>
-            <div style="height: 60px; border:#999999 solid ">
+            <div style="height: 80px; border:#999999 solid ">
                 <div>
                     <img src="img/Font.png" id="font_size" class="icon_img draggable">
                 </div>
             </div>
             <h1>Test</h1>
-            <textarea style="width:100%" rows="10" id="test"></textarea>
+            <div contenteditable="true" id="textarea"rows="10" id="test"><p>Testsatz</p><p>Zweite Zeile</p></div>
+            <a href="https://gesture-icons.projekte.fh-hagenberg.at/src/html/aufgabe2.html">Weiter</a>
         </div>
-        <button>Testbutton</button>
         <div id="footer">
+            <p>Bachelorarbeit "Gestengesteuerte Icons in der Webgestalltung" von Veronika Leitner</p>
             <p>Powered by <a href="http://www.ispconfig.org">ISPConfig</a></p>
         </div>
     </div>
