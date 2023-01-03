@@ -15,32 +15,12 @@
 <body>
 
 <script type="module">
-
-    function selectText(divid)
-    {
-        if (document.selection)
-        {
-            var div = document.body.createTextRange();
-
-            div.moveToElementText(document.getElementsByClassName(divid));
-            div.select();
-        }
-        else
-        {
-            var div = document.createRange();
-
-            div.setStartBefore(document.getElementsByClassName(divid));
-            div.setEndAfter(document.getElementsByClassName(divid)) ;
-
-            window.getSelection().addRange(div);
-        }
-    }
-
     $(document).ready(function(){
         var scaleUpFont;
         var SIZE_CHANGE = 4;
+        var spanId = 0;
         interact('#font_size')
-            .draggable({
+            /*.draggable({
                 lockAxis: 'y',
                 // enable inertial throwing
                 inertia: true,
@@ -69,12 +49,12 @@
                         var spn = '&lt;span class=" selected scale">' + highlight + '&lt;/span>';
                         var text = $('#textarea').html();
                         $('#textarea').html(text.replace(highlight, spn));
-                         */
+
                         // TODO: Beim ersten selektieren wird das p Element korrekt ausgegeben nachher wird das div-textarea Element als parent wiedergeben erst beim zweiten Selektieren funktioniert es
                         //console.log(window.getSelection().parentElement);
                         /*console.log(window.getSelection().anchorNode.parentNode.tagName.toLowerCase());
                         console.log(window.getSelection().anchorNode.parentNode.tagName.toLowerCase() == 'span');
-                         */
+
 
                         if(!(window.getSelection().anchorNode.parentNode.tagName.toLowerCase() == 'span')) {
                             surroundSelection();
@@ -111,9 +91,67 @@
                         $(this).toggleClass("selected");
                     }
                 }
+            })*/
+            .draggable({
+                lockAxis: 'y',
+                // enable inertial throwing
+                listeners: {
+                    // call this function on every dragmove event
+                    move: dragMoveListener,
+
+                    // call this function on every dragend event
+                    end (event) {
+                        console.log("scaleUpFont " + scaleUpFont);
+
+                        if(!(window.getSelection().anchorNode.parentNode.tagName.toLowerCase() == 'span')) {
+                            surroundSelection();
+                            console.log("SPAN" + $('span'))
+                            if(scaleUpFont === true){
+                                var newSize = $('span').css("fontSize") + SIZE_CHANGE;
+                                $('span').css("fontSize", newSize + "px");
+                            }else{
+                                var newSize = size - SIZE_CHANGE;
+                                $('span').css("fontSize", newSize + "px");
+                            }
+                            //Removes Selection if selection is new
+                            var sel = window.getSelection();
+                            sel.removeAllRanges();
+                            return false;
+                            alert("Element surrouned!")
+                        }
+                        var id = $(window.getSelection().anchorNode.parentElement).attr('id');
+
+                        var size = parseInt($(window.getSelection().anchorNode.parentElement).css("fontSize"));
+
+                        if(scaleUpFont === true){
+                            var newSize = size + SIZE_CHANGE;
+                            $('#' + id).css("fontSize", newSize + "px");
+                        }else{
+                            var newSize = size - SIZE_CHANGE;
+                            $('#' + id).css("fontSize", newSize + "px");
+                        }
+                    }
+                }
             })
 
+
         function surroundSelection() {
+            var span = document.createElement("span");
+
+            if (window.getSelection) {
+                span.id = "font-" + spanId;
+                spanId++;
+                var sel = window.getSelection();
+                if (sel.rangeCount) {
+                    var range = sel.getRangeAt(0).cloneRange();
+                    range.surroundContents(span);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+            }
+        }
+
+        /*function surroundSelection() {
             var span = document.createElement("span");
             span.className = "selected";
 
@@ -126,7 +164,7 @@
                     sel.addRange(range);
                 }
             }
-        }
+        }*/
 
         function dragMoveListener (event) {
 
@@ -139,7 +177,8 @@
             console.log("Event dy: " + event.dy );
             console.log("Event PageY: " + event.pageY);
             console.log("y0" + event.y0)
-            */
+             */
+
             // translate the element
             //target.style.transform = 'translate(' + x + 'px, ' + y + 'px)'
             if(event.pageY < event.y0){
