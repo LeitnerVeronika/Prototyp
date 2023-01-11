@@ -7,7 +7,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <link rel="shortcut icon" href="/favicon.ico"/>
     <meta name="robots" content="noindex"/>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/styles.css?v=1.1">
+    <link rel="stylesheet" href="../css/media.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js" type="text/javascript"></script>
     <script src="https://unpkg.com/interactjs@1.10.17/dist/interact.min.js" type="text/javascript"></script>
     <script src="../../plugin/jquery.selection.js"></script>
@@ -19,6 +21,7 @@
     var scaleUpFont;
     var bold;
     var SIZE_CHANGE = 4;
+    var spanId = 0;
 
     /** Text Decor (BOLD, ITALIC, UNDERLINED) **/
     interact('#text_decor')
@@ -53,7 +56,6 @@
                         }else {
                             italicSelected();
                         }
-                        alert("Element surrouned!")
                     }
                     //$(this).toggleClass("selected");
                 }
@@ -66,67 +68,51 @@
         .draggable({
             lockAxis: 'y',
             // enable inertial throwing
-            inertia: true,
-            // keep the element within the area of it's parent
-            modifiers: [
-                interact.modifiers.restrictRect({
-                    restriction: 'parent',
-                    endOnly: true
-                })
-            ],
-            // enable autoScroll
-            autoScroll: true,
-
             listeners: {
                 // call this function on every dragmove event
                 move: dragMoveListenerVertical,
 
                 // call this function on every dragend event
                 end(event) {
-                    console.log("Test");
-                    // Todo: Funktioniert so semi könnte besser sein
-                    /* var highlight = window.getSelection();
-                    console.log(highlight.toString());
-                    highlight.rangeCount;
-                    console.log(document.createRange().toString());
-                    var spn = '&lt;span class=" selected scale">' + highlight + '&lt;/span>';
-                    var text = $('#textarea').html();
-                    $('#textarea').html(text.replace(highlight, spn));
-                     */
-                    // TODO: Beim ersten selektieren wird das p Element korrekt ausgegeben nachher wird das div-textarea Element als parent wiedergeben erst beim zweiten Selektieren funktioniert es
-                    /*console.log(window.getSelection().anchorNode.parentNode.tagName.toLowerCase());
-                    console.log(window.getSelection().anchorNode.parentNode.tagName.toLowerCase() == 'span');
-                     */
+                    console.log("scaleUpFont " + scaleUpFont);
 
                     if (!(window.getSelection().anchorNode.parentNode.tagName.toLowerCase() == 'span')) {
                         surroundSelection();
-                        alert("Element surrouned!")
+                        console.log("SPAN" + $('span'))
+                        if (scaleUpFont === true) {
+                            var newSize = $('span').css("fontSize") + SIZE_CHANGE;
+                            $('span').css("fontSize", newSize + "px");
+                        } else {
+                            var newSize = size - SIZE_CHANGE;
+                            $('span').css("fontSize", newSize + "px");
+                        }
+                        //Removes Selection if selection is new
+                        var sel = window.getSelection();
+                        sel.removeAllRanges();
+                        return false;
                     }
+                    var id = $(window.getSelection().anchorNode.parentElement).attr('id');
 
-
-                    var size = parseInt($('.selected').css("fontSize"));
-                    //console.log(scaleUpFont);
-                    //console.log(size);
+                    var size = parseInt($(window.getSelection().anchorNode.parentElement).css("fontSize"));
 
                     if (scaleUpFont === true) {
                         var newSize = size + SIZE_CHANGE;
-                        //console.log(newSize);
-                        $('.selected').css("fontSize", newSize + "px");
+                        $('#' + id).css("fontSize", newSize + "px");
                     } else {
                         var newSize = size - SIZE_CHANGE;
-                        //console.log(newSize);
-                        $('.selected').css("fontSize", newSize + "px");
+                        $('#' + id).css("fontSize", newSize + "px");
                     }
-                    $(this).toggleClass("selected");
                 }
             }
         })
 
+
     function surroundSelection() {
         var span = document.createElement("span");
-        span.className = "selected";
 
         if (window.getSelection) {
+            span.id = "font-" + spanId;
+            spanId++;
             var sel = window.getSelection();
             if (sel.rangeCount) {
                 var range = sel.getRangeAt(0).cloneRange();
@@ -203,7 +189,7 @@
     }
 
     // this function is used later in the resizing and gesture demos
-    window.dragMoveListener = dragMoveListener
+    //window.dragMoveListener = dragMoveListener
 
     function dragMoveListenerHorizontal(event) {
 
@@ -239,17 +225,19 @@
             formatieren.</h2>
         <div class="icon_menu">
             <div>
-                <img src="../../img/Font.png" id="font_size" class="icon_img draggable">
-                <img src="../../img/TextDecor.png" id="text_decor" class="icon_img draggable">
+                <img src="../../img/FontSize.gif" id="font_size" class="icon_img draggable">
+                <img src="../../img/TextDecor.gif" id="text_decor" class="icon_img draggable">
             </div>
         </div>
         <h1>Test</h1>
-        <div contenteditable="true" id="textarea" rows="10" id="test"><p>Mittels einer Geste über das
+        <div  readonly="readonly"  id="textarea" rows="10" id="test"><p>Mittels einer Geste über das
             Icon nach rechts kann dieses Wort kursiv geschrieben werden.</p>
             <p>Um dieses Wort fett zu formatieren muss man nach links wischen.</p>
             <p>Damit man dieses Wort unterstreichen kann macht man einen Doppelklick auf das zweite Icon.</p>
         </div>
-        <a href="https://gesture-icons.projekte.fh-hagenberg.at/src/html/aufgabe3.html">Weiter</a>
+        <div class="button">
+            <a href="https://gesture-icons.projekte.fh-hagenberg.at/src/html/aufgabe3.html">Weiter</a>
+        </div>
     </div>
     <div id="footer">
         <p>Bachelorarbeit "Gestengesteuerte Icons in der Webgestalltung" von Veronika Leitner</p>

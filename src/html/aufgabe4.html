@@ -24,6 +24,52 @@
     var spanId = 0;
     var color;
     var highlightMode = false;
+    var alignment;
+
+    /** Text Alignment (LEFT, CENTER, RIGHT, JUSTIFY **/
+    interact('#text_align')
+        .on('hold', function (event) {
+            var sel = window.getSelection().toString();
+            console.log(sel);
+            $('p:contains(' + sel + ')').css('text-align', 'center');
+        })
+        .gesturable({
+            listeners: {
+                move: gestureListenerVertical,
+
+                // call this function on every dragend event
+                end(event) {
+                    console.log('Alignment: ' + alignment);
+                    //console.log(window.getSelection().anchorNode.parentNode);
+                    var sel = window.getSelection().toString();
+                    console.log(sel);
+                    $('p:contains(' + sel + ')').css('text-align', alignment);
+
+                    //$('#' + id).css("color", color);
+
+                }
+            }
+        })
+        .draggable({
+            lockAxis: 'xy',
+            listeners: {
+                // call this function on every dragmove event
+                move: dragMoveListenerHorizontal,
+
+                // call this function on every dragend event
+                end(event) {
+                    console.log('Alignment: ' + alignment);
+                    //console.log(window.getSelection().anchorNode.parentNode);
+                    var sel = window.getSelection().toString();
+                    console.log(sel);
+                    $('p:contains(' + sel + ')').css('text-align', alignment);
+
+                    //$('#' + id).css("color", color);
+
+                }
+            }
+        })
+
 
     /** Font Color (BLACK, BLUE, CYAN, GREEN, YELLOW, ORANGE, RED, MAGENTA) **/
 
@@ -221,9 +267,15 @@
 
         if (event.pageX < event.x0) {
             bold = true;
+            alignment = 'left';
         } else {
             bold = false;
+            alignment = 'right';
         }
+    }
+
+    function gestureListenerVertical(event) {
+        alert(event.angle);
     }
 
     function dragMoveListenerEightfold(event) {
@@ -231,13 +283,12 @@
 
         if (event.pageY < event.y0) {
             color = 'black';
-            console.log(event.pageX + event.x0);
             if (event.pageX > event.x0) {
                 // TODO Magenta Funktioniert nicht
                 if (event.pageX + 20 > event.x0) {
                     color = 'magenta';
                 }
-                 if (event.pageX + 40 > event.x0) {
+                if (event.pageX + 40 > event.x0) {
                     color = 'red';
                 }
             }
@@ -276,20 +327,32 @@
         <h1>Gestengesteuertes Textverarbeitungsprogramm</h1>
     </div>
     <div id="content">
-        <h2>Aufgabe 3: Klicken und ziehen Sie auf das dritte Icon um den Text in einer anderen Farbe zu färben.</h2>
+        <h2>Aufgabe 4: Versuchen Sie die erste Zeile nach rechts und den zweiten Absatz als Blocksatz
+            auszurichten. </h2>
         <div class="icon_menu">
             <div>
                 <img src="../../img/FontSize.gif" id="font_size" class="icon_img draggable">
                 <img src="../../img/TextDecor.gif" id="text_decor" class="icon_img draggable">
                 <img src="../../img/Colors.png" id="text_color" class="icon_img draggable">
+                <img src="../../img/Alignment.gif" id="text_align" class="icon_img draggable">
             </div>
         </div>
         <h1>Test</h1>
-        <div  readonly="readonly"  id="textarea" rows="10"><p>Färben Sie diesen Text in einer beliebigen
-            Farbe um.</p>
+        <div readonly="readonly" id="textarea" rows="10">
+            <p>
+                Bitte richten Sie diesen Text rechtsbündig aus.
+            </p>
+            <p>
+                Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut
+                labore et dolore magna aliquyam erat, sed diam voluptua.
+                At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata
+                sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit
+                amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna
+                aliquyam erat, sed diam voluptua.
+            </p>
         </div>
         <div class="button">
-            <a href="https://gesture-icons.projekte.fh-hagenberg.at/src/html/aufgabe4.html">Weiter</a>
+            <a href="https://gesture-icons.projekte.fh-hagenberg.at/src/html/aufgabe5.html">Weiter</a>
         </div>
     </div>
     <div id="footer">

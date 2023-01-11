@@ -24,6 +24,71 @@
     var spanId = 0;
     var color;
     var highlightMode = false;
+    var alignment;
+    var listType;
+
+    /** Lists (ORDERED; UNORDERED; INCREASE || DECREASE INDENT **/
+    interact('#list')
+        .draggable({
+            lockAxis: 'y',
+            listeners: {
+                // call this function on every dragmove event
+                move: dragMoveListenerVertical,
+
+                // call this function on every dragend event
+                end(event) {
+                    console.log('List Type: ' + listType);
+
+                    //console.log(window.getSelection().anchorNode.parentNode);
+                    var sel = window.getSelection().toString();
+                    console.log(sel);
+                    //$('p:contains(' + sel + ')').unwrap().wrap('<li/>');
+                    //$('p:contains(' + sel + ')').wrap('<ul/>');
+                    $('p:contains(' + sel + ')').replaceWith('<li>' + sel + '</li>');
+
+                }
+            }
+        })
+
+    /** Text Alignment (LEFT, CENTER, RIGHT, JUSTIFY **/
+    interact('#text_align')
+        .on('hold', function (event) {
+            var sel = window.getSelection().toString();
+            $('p:contains(' + sel + ')').css('text-align', 'center');
+        })
+        .gesturable({
+            listeners: {
+                move: gestureListenerVertical,
+
+                // call this function on every dragend event
+                end(event) {
+                    console.log('Alignment: ' + alignment);
+                    //console.log(window.getSelection().anchorNode.parentNode);
+                    var sel = window.getSelection().toString();
+                    $('p:contains(' + sel + ')').css('text-align', alignment);
+
+                    //$('#' + id).css("color", color);
+
+                }
+            }
+        })
+        .draggable({
+            lockAxis: 'xy',
+            listeners: {
+                // call this function on every dragmove event
+                move: dragMoveListenerHorizontal,
+
+                // call this function on every dragend event
+                end(event) {
+                    var sel = window.getSelection().toString();
+                    $('p:contains(' + sel + ')').css('text-align', alignment);
+
+                    //$('#' + id).css("color", color);
+
+                }
+            }
+        })
+
 
     /** Font Color (BLACK, BLUE, CYAN, GREEN, YELLOW, ORANGE, RED, MAGENTA) **/
 
@@ -115,6 +180,7 @@
 
                 // call this function on every dragend event
                 end(event) {
+                    console.log("Fontsize: " + scaleUpFont)
                     if (!(window.getSelection().anchorNode.parentNode.tagName.toLowerCase() == 'span')) {
                         surroundSelection();
                         if (scaleUpFont === true) {
@@ -145,7 +211,7 @@
 
     function surroundSelection() {
         var span = document.createElement("span");
-
+        console.log(span);
         if (window.getSelection) {
             span.id = "font-" + spanId;
             spanId++;
@@ -153,6 +219,30 @@
             if (sel.rangeCount) {
                 var range = sel.getRangeAt(0).cloneRange();
                 range.surroundContents(span);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+    }
+
+    function listSelection() {
+        console.log(listType);
+        var list;
+        if(listType === 'ul'){
+            list = document.createElement("ul");
+        }else{
+            list = document.createElement("ol");
+        }
+
+        if (window.getSelection) {
+            list.id = "font-" + spanId;
+            console.log(list);
+            //spanId++;
+            var sel = window.getSelection();
+            if (sel.rangeCount) {
+                var range = sel.getRangeAt(0).cloneRange();
+                console.log(range);
+                range.surroundContents(list);
                 sel.removeAllRanges();
                 sel.addRange(range);
             }
@@ -207,8 +297,10 @@
         var target = event.target
         if (event.pageY < event.y0) {
             scaleUpFont = true;
+            listType = "ol";
         } else {
             scaleUpFont = false;
+            listType = "ul";
         }
     }
 
@@ -221,9 +313,14 @@
 
         if (event.pageX < event.x0) {
             bold = true;
+            alignment = 'left';
         } else {
             bold = false;
+            alignment = 'right';
         }
+    }
+    function gestureListenerVertical(event){
+        alert(event.angle);
     }
 
     function dragMoveListenerEightfold(event) {
@@ -231,7 +328,6 @@
 
         if (event.pageY < event.y0) {
             color = 'black';
-            console.log(event.pageX + event.x0);
             if (event.pageX > event.x0) {
                 // TODO Magenta Funktioniert nicht
                 if (event.pageX + 20 > event.x0) {
@@ -276,20 +372,36 @@
         <h1>Gestengesteuertes Textverarbeitungsprogramm</h1>
     </div>
     <div id="content">
-        <h2>Aufgabe 3: Klicken und ziehen Sie auf das dritte Icon um den Text in einer anderen Farbe zu färben.</h2>
+        <h2>Aufgabe 4: Versuchen Sie die erste Zeile nach rechts und den zweiten Absatz als Blocksatz auszurichten. </h2>
         <div class="icon_menu">
             <div>
                 <img src="../../img/FontSize.gif" id="font_size" class="icon_img draggable">
                 <img src="../../img/TextDecor.gif" id="text_decor" class="icon_img draggable">
                 <img src="../../img/Colors.png" id="text_color" class="icon_img draggable">
+                <img src="../../img/Alignment.gif" id="text_align" class="icon_img draggable">
+                <img src="../../img/List.gif" id="list" class="icon_img draggable">
             </div>
         </div>
         <h1>Test</h1>
-        <div  readonly="readonly"  id="textarea" rows="10"><p>Färben Sie diesen Text in einer beliebigen
-            Farbe um.</p>
+        <div readonly="readonly"  id="textarea" rows="10">
+            <h3>Einkaufsliste</h3>
+            <p>Gemüse</p>
+            <p>Paprika</p>
+            <p>Karotten</p>
+            <p>Obst</p>
+            <p>Apfel</p>
+            <p>Bananen</p>
+            <p>Birnen</p>
+            <p>Milchprodukte</p>
+            <p>Milch</p>
+            <p>Joghurt</p>
+            <p>Schlagobers</p>
+            <p>Brot</p>
+            <p>Aufstrich</p>
+            <p>Wurst</p>
         </div>
         <div class="button">
-            <a href="https://gesture-icons.projekte.fh-hagenberg.at/src/html/aufgabe4.html">Weiter</a>
+            <a href="">Weiter</a>
         </div>
     </div>
     <div id="footer">
